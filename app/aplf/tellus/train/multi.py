@@ -21,7 +21,7 @@ from aplf import config
 from tensorboardX import SummaryWriter
 from ..metric import iou
 from os import path
-from ..losses import lovasz_softmax, FocalLoss, LossSwitcher, LinearLossSwitcher, lovasz_softmax_flat
+from ..losses import  lovasz_softmax_flat, SSIM
 from aplf.utils import skip_if_exists
 from aplf.optimizers import Eve
 from ..data import ChunkSampler, Augment, batch_aug
@@ -150,12 +150,11 @@ def train_epoch(model,
             dim=0
         ).to(device)
 
-        logit_loss = criterion(
+        loss = criterion(
             model(palsar_x),
             (labels, landsat_x)
         )
 
-        loss = logit_loss
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -167,11 +166,11 @@ def train_epoch(model,
 
 @curry
 def criterion(landsat_weight, x, y):
-    image_cri = nn.MSELoss(size_average=True)
+    image_cri = SSIM(size_average=True, window_size=2)
     class_cri = nn.CrossEntropyLoss(size_average=True)
     logit, landsat_x = x
     labels, landsat_y = y
-    loss = class_cri(logit, labels) + landsat_weight * \
+    loss = class_cri(logit, labels) - landsat_weight * \
         image_cri(landsat_x, landsat_y)
     return loss
 

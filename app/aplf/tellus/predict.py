@@ -55,12 +55,14 @@ def predict(model_dirs,
                 map(lambda x: x(palser_x)[0]),
                 list,
             )
+
             output = pipe(
                 [*normal_outputs],
                 map(lambda x: x.softmax(dim=1)),
                 reduce(lambda x, y: (x+y)/2),
-                lambda x: x.argmax(dim=1),
+                lambda x: x[:, 1] > 0.55,
             )
+            print(output)
             y_ids += ids
             y_preds += output.cpu().detach().tolist()
 

@@ -29,7 +29,7 @@ def test_graph():
 
     g = Graph(
         **base_param,
-        id=f"3795fe71-and-f1b180f2",
+        id=f"ssim-scse-in-res-lr-0.001-esb-2-fs-16-dp2-lw-10",
         train_method='multi',
         base_train_config=base_train_config,
         n_splits=8,
