@@ -24,6 +24,26 @@ from torchvision.transforms import (
     RandomVerticalFlip,
     RandomResizedCrop,
 )
+
+from albumentations import (
+    PadIfNeeded,
+    HorizontalFlip,
+    VerticalFlip,
+    CenterCrop,
+    Crop, Compose,
+    Transpose,
+    RandomRotate90,
+    ElasticTransform,
+    GridDistortion,
+    OpticalDistortion,
+    RandomSizedCrop,
+    OneOf,
+    CLAHE,
+    RandomContrast,
+    RandomGamma,
+    RandomBrightness
+)
+
 from torchvision.transforms.functional import (
     adjust_brightness
 )
@@ -41,7 +61,7 @@ def test_test_dataset():
     )
     loader = DataLoader(
         dataset=dataset,
-        batch_size=8,
+        batch_size=1,
         shuffle=False,
     )
     sample = pipe(
@@ -51,20 +71,9 @@ def test_test_dataset():
     aug = Augment()
 
     writer = SummaryWriter(f'{config["TENSORBORAD_LOG_DIR"]}/test/aug')
-    writer.add_image(
-        f"brightness/landsat",
-        vutils.make_grid(
-            [
-                *batch_aug(aug, sample['landsat'], ch=3)[:, 0:3, :, :],
-                *batch_aug(aug, sample['landsat'], ch=3)[:, 3:6, :, :],
-                *sample['landsat'][:, 0:3, :, :],
-                *sample['landsat'][:, 3:6, :, :],
-            ]
-        ),
-    )
 
     writer.add_image(
-        f"brightness/palsar",
+        f"ElasticTransform/palsar",
         vutils.make_grid(
             [
                 *batch_aug(aug, sample['palsar'], ch=1)[:, 0:1, :, :],

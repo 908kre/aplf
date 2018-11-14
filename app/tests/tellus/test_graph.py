@@ -29,11 +29,11 @@ def test_graph():
 
     g = Graph(
         **base_param,
-        id=f"ssim-scse-in-res-lr-0.001-esb-2-fs-16-dp2-lw-10",
+        id=f"elastic-scse-in-res-lr-0.001-esb-2-fs-16-dp2-lw-10",
         train_method='multi',
         base_train_config=base_train_config,
         n_splits=8,
-        folds=[0],
+        folds=[1,2],
     )
 
     g(scheduler='single-threaded')

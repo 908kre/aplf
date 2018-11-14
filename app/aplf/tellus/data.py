@@ -3,23 +3,36 @@ import random
 from torch.utils.data import Subset, Sampler
 from skimage import img_as_float
 from dask import delayed
+from albumentations import (
+    PadIfNeeded,
+    HorizontalFlip,
+    VerticalFlip,
+    CenterCrop,
+    Crop,
+    Compose,
+    Transpose,
+    RandomRotate90,
+    ElasticTransform,
+    GridDistortion,
+    OpticalDistortion,
+    RandomSizedCrop,
+    OneOf,
+    CLAHE,
+    RandomContrast,
+    RandomGamma,
+    RandomBrightness
+)
 from torchvision.transforms import (
     RandomRotation,
     ToPILImage,
-    Compose, ToTensor,
-    CenterCrop,
-    RandomAffine,
-    TenCrop,
-    RandomApply,
-    RandomHorizontalFlip,
-    RandomVerticalFlip,
-    RandomResizedCrop,
+    Compose,
+    ToTensor
 )
 
 from torchvision.transforms.functional import (
     adjust_brightness,
     adjust_contrast,
-    adjust_gamma
+    adjust_gamma,
 )
 import random
 from skimage import io
@@ -249,27 +262,15 @@ def kfold(df, n_splits, random_state=0):
 
 class Augment(object):
     def __init__(self):
-        augs = [
-            #  hflip,
-            #  vflip,
-            #  lambda x: rotate(x, 90),
-            #  lambda x: adjust_brightness(x, 2),
-            #  lambda x: adjust_contrast(x, 2),
-
-        ]
-        self.augs = pipe(
-            augs,
-            map(lambda a: random.choice([lambda x: x, a])),
-            list,
-        )
-        self.transform = Compose([
-            ToPILImage(),
-            *self.augs,
-            ToTensor(),
-        ])
+        self.aug = ElasticTransform(sigma=10, p=0.5, alpha_affine=5)
 
     def __call__(self, t):
-        return self.transform(t)
+        pil_image = ToPILImage()(t)
+        image = self.aug(image=np.array(pil_image))['image']
+        h, w = image.shape
+        image = image.reshape(h, w, -1)
+        return ToTensor()(image)
+        #  return self.transform(t)
 
 
 @curry
